@@ -27,6 +27,7 @@ import imgui.type.ImString;
 
 import org.json.*;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,8 +40,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.*;
@@ -53,6 +57,10 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Game {
 	public static void main(String[] args) throws Throwable {
+		PrintStream log = new PrintStream("UnsignedEngine.tlog");
+		PrintStream elog = new PrintStream("Errors.tlog");
+		System.setOut(log);
+		System.setErr(elog);
 		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");
 
@@ -95,10 +103,14 @@ public class Game {
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_DEPTH_TEST);
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
 		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 		Random random = new Random();
 		Structure struct = new Structure();
@@ -123,6 +135,13 @@ public class Game {
 		ImString t = new ImString(1024);
 		ImString p = new ImString(1024);
 
+
+		float deltaTime = 0.0f;
+		float lastFrame = 0.0f;
+
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss z");
+		Date date = new Date(System.currentTimeMillis());
+
 		Json.DeserializeCamera(cam);
 		Json.DeserializeEntity(struct, cam);
 		if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
@@ -130,6 +149,11 @@ public class Game {
 		}
 
 		while (!glfwWindowShouldClose(window)) {
+
+			float currentFrame = (float)glfwGetTime();
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+
 			if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
 				manager.HandleInput();
 			}
@@ -160,7 +184,7 @@ public class Game {
 			}
 			cam.Update();
 			struct.Render();
-			layer.newFrame(1f / 60f);
+			layer.newFrame(deltaTime);
 			if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))){
 				ImGui.begin("Scene");
 				for(Entity e : struct.entities) {
@@ -240,6 +264,8 @@ public class Game {
 						CMD.ExecuteCommand("C:\\Users\\"+System.getProperty("user.name")+"\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe "+s);
 					}
 				}
+
+				ImGui.end();
 				ImGui.begin("ScriptManager");
 				ImGui.inputText("Path",p);
 				if(ImGui.button("New Script")) {
@@ -265,6 +291,21 @@ public class Game {
 				}
 				ImGui.end();
 
+				ImGui.begin("Console");
+				String[] alines = IOUtil.loadFile("UnsignedEngine.tlog").split("\n");
+				for(String a : alines) {
+					if(a != "") {
+						ImGui.text("["+formatter.format(date)+"] "+a);
+					}
+				}
+				ImGui.end();
+				ImGui.begin("Errors");
+				String[] lines = IOUtil.loadFile("Errors.tlog").split("\n");
+				for(String e : lines) {
+					if(e != "") {
+						ImGui.textColored(1.0f, 0.0f, 0.0f, 1.0f, "["+formatter.format(date)+"] "+e);
+					}
+				}
 				ImGui.end();
 				if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
 					Json.SerializeCamera(cam);
