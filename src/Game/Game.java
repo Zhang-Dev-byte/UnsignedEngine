@@ -106,7 +106,7 @@ public class Game {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(Float.parseFloat(ConfigCompiler.LoadFile("Color.config").get(0)), Float.parseFloat(ConfigCompiler.LoadFile("Color.config").get(1)), Float.parseFloat(ConfigCompiler.LoadFile("Color.config").get(2)), 0.0f);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

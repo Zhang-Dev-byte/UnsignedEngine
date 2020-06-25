@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.PrintWriter;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import Engine.Core.IOUtil;
@@ -30,6 +31,14 @@ public class Json {
 	    obj.put("obj", e.object);
 
 	    PrintWriter out = new PrintWriter(new File(e.name+".json"));
+	    obj.write(out);
+	    out.close();
+	}
+	public static JSONObject Deserialize(String path) throws Throwable {
+		return new JSONObject(IOUtil.loadFile(path));
+	}
+	public static void Serialize(String path, JSONObject obj) throws Throwable {
+	    PrintWriter out = new PrintWriter(new File(path));
 	    obj.write(out);
 	    out.close();
 	}
