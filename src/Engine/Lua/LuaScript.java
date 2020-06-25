@@ -26,7 +26,7 @@ public class LuaScript {
 	ScriptEngineManager mgr;
 	ScriptEngine e;
 
-	public LuaScript(String path, Structure struct, InputManager input, Camera cam, Random random) {
+	public LuaScript(String path, Structure struct, InputManager input, Camera cam, Random random) throws Throwable {
 		this.path = path;
 		this.struct = struct;
 		this.input = input;
@@ -51,6 +51,7 @@ public class LuaScript {
 		e.put("AABB", "Engine.Physics.AABB");
 		e.put("GUIFrame", "Engine.GUI.Button");
 		e.put("AudioPlayer", "Engine.Audio.AudioPlayer");
+		e.put("Log", "Engine.Core.Log");
 
 		e.put("KEY_1", GLFW_KEY_1);
 		e.put("KEY_2", GLFW_KEY_2);
@@ -127,6 +128,7 @@ public class LuaScript {
 		e.put("AABB", "Engine.Physics.AABB");
 		e.put("GUIFrame", "Engine.GUI.Button");
 		e.put("AudioPlayer", "Engine.Audio.AudioPlayer");
+		e.put("Log", "Engine.Core.Log");
 
 		e.put("KEY_1", GLFW_KEY_1);
 		e.put("KEY_2", GLFW_KEY_2);
@@ -202,6 +204,7 @@ public class LuaScript {
 		e.put("AABB", "Engine.Physics.AABB");
 		e.put("GUIFrame", "Engine.GUI.Button");
 		e.put("AudioPlayer", "Engine.Audio.AudioPlayer");
+		e.put("Log", "Engine.Core.Log");
 
 		e.put("KEY_1", GLFW_KEY_1);
 		e.put("KEY_2", GLFW_KEY_2);
@@ -277,6 +280,7 @@ public class LuaScript {
 		e.put("AABB", "Engine.Physics.AABB");
 		e.put("GUIFrame", "Engine.GUI.Button");
 		e.put("AudioPlayer", "Engine.Audio.AudioPlayer");
+		e.put("Log", "Engine.Core.Log");
 
 		e.put("KEY_1", GLFW_KEY_1);
 		e.put("KEY_2", GLFW_KEY_2);

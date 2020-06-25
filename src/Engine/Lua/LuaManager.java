@@ -15,7 +15,7 @@ public class LuaManager {
 	public InputManager input;
 	public Camera cam;
 
-	public LuaManager(List<String> order, Structure struct, InputManager input, Camera cam, Random random) {
+	public LuaManager(List<String> order, Structure struct, InputManager input, Camera cam, Random random) throws Throwable {
 		this.order = order;
 		this.struct = struct;
 		this.input = input;

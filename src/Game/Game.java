@@ -11,6 +11,7 @@ import Engine.Audio.AudioPlayer;
 import Engine.Compiler.ConfigCompiler;
 import Engine.Core.IOUtil;
 import Engine.Core.InputManager;
+import Engine.Core.Log;
 import Engine.GUI.Button;
 import Engine.GUI.GUIFrame;
 import Engine.GUI.ImGuiLayer;
@@ -60,7 +61,6 @@ public class Game {
 		PrintStream log = new PrintStream("UnsignedEngine.tlog");
 		PrintStream elog = new PrintStream("Errors.tlog");
 		System.setOut(log);
-		System.setErr(elog);
 		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");
 
@@ -111,7 +111,9 @@ public class Game {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
+		boolean shouldset = false;
+		boolean isPlaying = false;
+		boolean ran = false;
 		Random random = new Random();
 		Structure struct = new Structure();
 		InputManager input = new InputManager(window);
@@ -144,7 +146,7 @@ public class Game {
 
 		Json.DeserializeCamera(cam);
 		Json.DeserializeEntity(struct, cam);
-		if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
+		if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1)) || isPlaying) {
 			manager.Run();
 		}
 
@@ -154,10 +156,10 @@ public class Game {
 			deltaTime = currentFrame - lastFrame;
 			lastFrame = currentFrame;
 
-			if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
+			if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1)) || isPlaying) {
 				manager.HandleInput();
 			}
-			if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
+			if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1)) && !isPlaying) {
 				if(input.GetKey(GLFW_KEY_W)) {
 					cam.position.z += 1;
 				}
@@ -179,13 +181,30 @@ public class Game {
 			}
 			glfwPollEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
+			if(!Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1)) || isPlaying) {
 				manager.Update();
 			}
 			cam.Update();
 			struct.Render();
 			layer.newFrame(deltaTime);
-			if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))){
+			if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
+				ImGui.begin("Control");
+				if(ImGui.button("Play")) {
+					try {
+						shouldset = true;
+					}catch(Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+				if(ImGui.button("Stop")) {
+					shouldset = false;
+					struct.entities.clear();
+					Json.DeserializeCamera(cam);
+					Json.DeserializeEntity(struct, cam);
+				}
+				ImGui.end();
+			}
+			if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1)) || isPlaying){
 				ImGui.begin("Scene");
 				for(Entity e : struct.entities) {
 					if(ImGui.button(e.name)) {
@@ -276,7 +295,7 @@ public class Game {
 				    writer.close();
 
 				    PrintWriter out = new PrintWriter(new File(p.toString()));
-				    out.write("\r\n" +
+				    out.write("logger = Unsigned.newInstance(Log)\r\n" +
 				    		"function Awake()\r\n" +
 				    		"end\r\n" +
 				    		"function Start()\r\n" +
@@ -306,8 +325,9 @@ public class Game {
 						ImGui.textColored(1.0f, 0.0f, 0.0f, 1.0f, "["+formatter.format(date)+"] "+e);
 					}
 				}
+				IOUtil.clearFile("Errors.tlog");
 				ImGui.end();
-				if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1))) {
+				if(Boolean.parseBoolean(ConfigCompiler.LoadFile("Game.config").get(1)) && isPlaying == false) {
 					Json.SerializeCamera(cam);
 					for(Entity e : struct.entities) {
 						Json.SeralizeEntity(e);
@@ -316,6 +336,11 @@ public class Game {
 			}
 			layer.render();
 			glfwSwapBuffers(window);
+			isPlaying = shouldset;
+			if(ran == false && isPlaying == true) {
+				manager.Run();
+				ran = true;
+			}
 		}
 
 

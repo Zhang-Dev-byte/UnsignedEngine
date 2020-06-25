@@ -1,4 +1,4 @@
-
+logger = Unsigned.newInstance(Log)
 function Awake()
 end
 function Start()
