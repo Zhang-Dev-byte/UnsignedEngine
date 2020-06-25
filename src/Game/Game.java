@@ -198,6 +198,7 @@ public class Game {
 				}
 				if(ImGui.button("Stop")) {
 					shouldset = false;
+					ran = false;
 					struct.entities.clear();
 					Json.DeserializeCamera(cam);
 					Json.DeserializeEntity(struct, cam);
@@ -248,6 +249,16 @@ public class Game {
 				if(ImGui.button("Delete")) {
 					struct.entities.remove(se);
 					IOUtil.deleteFile(se.name+".json");
+					ss = new float[]{0};
+					sp = new float[]{0,0,0};
+					sr = new float[]{0,0,0};
+					is = 0;
+					vs = 0;
+					sf = "";
+					sn = "";
+					se = new Entity(null,null,null,null);
+				}
+				if(ImGui.button("Deselect")) {
 					ss = new float[]{0};
 					sp = new float[]{0,0,0};
 					sr = new float[]{0,0,0};

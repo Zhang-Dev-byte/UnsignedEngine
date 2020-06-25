@@ -161,6 +161,21 @@ public class ImGuiLayer {
 	            }
 	        });
 
+	        final ImFontAtlas fontAtlas = io.getFonts();
+	        final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated object, should be explicitly destroyed
+
+	        // Glyphs could be added per-font as well as per config used globally like here
+	        fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
+
+	        // Fonts merge example
+	        fontConfig.setPixelSnapH(true);
+
+	        fontAtlas.addFontFromFileTTF("res/Roboto.ttf", 18, fontConfig);
+
+	        fontConfig.destroy(); // After all fonts were added we don't need this config more
+
+	        ImGuiFreeType.buildFontAtlas(fontAtlas, ImGuiFreeType.RasterizerFlags.LightHinting);
+
 	        // ------------------------------------------------------------
 	        // Fonts configuration
 	        // Read: https://raw.githubusercontent.com/ocornut/imgui/master/docs/FONTS.txt
